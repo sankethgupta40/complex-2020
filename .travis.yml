@@ -1,0 +1,23 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t sanketh1701/complex2020-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run -e CI=true sanketh1701/complex2020-test npm test
+
+
+after_success:
+  - docker build -t sanketh1701/complex-client2020 ./client
+  - docker build -t sanketh1701/complex-nginx2020 ./nginx
+  - docker build -t sanketh1701/complex-server2020 ./server
+  - docker build -t sanketh1701/complex-worker2020 ./worker
+
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+
+  - docker push sanketh1701/complex-client2020
+  - docker push sanketh1701/complex-nginx2020
+  - docker push sanketh1701/complex-server2020
+  - docker push sanketh1701/complex-worker2020
